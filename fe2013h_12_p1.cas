@@ -1,0 +1,27 @@
+BREP	START
+		RPUSH
+		LD		GR4, GR0
+		LD		GR5, GR0
+		LD		GR6, =#8000	; MASKパターン生成の準備
+		LAD		GR3,-1,GR3
+		SRA		GR6, 0,GR3	; GR6 ← qビットの MASK パターン生成
+		LD		GR7,GR6
+		LD		GR3,=16
+		SUBA	GR3,GR2		; GR3 <= 16 - p
+		SRL		GR4,0,GR2	; 1語目用置換文字列の準備
+		SLL		GR5,0,GR3	; 2語目用置換文字列の準備
+		SRL		GR6,0,GR2	; 1語目用MASKパターン生成
+		SLL		GR7,0,GR3	; 2語目用MASKパターン生成
+		LD		GR2,0, GR1 	; 1語目の処理
+		XOR		GR6,=#FFFF
+		AND		GR2, GR0
+		OR		GR2, GR4
+		ST		GR2,0, GR1 
+		LD		GR2,1, GR1 	; 2語目の処理
+		XOR		GR7,=#FFFF 
+		AND		GR2,GR7 
+		OR		GR2, GR5
+		ST		GR2,1, GR1 
+		RPOP 
+		RET 
+		END
