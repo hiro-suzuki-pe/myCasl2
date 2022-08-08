@@ -44,22 +44,11 @@ other       .
 %%
 
 ^"#"{blank}*{digit}+({blank}+.*)?\n     yymark();
-">="        return token(GE);
-"<="        return token(LE);
-"=="        return token(EQ);
-"!="        return token(NE);
-"+="        return token(PE);
-"-="        return token(ME);
-"*="        return token(TE);
-"/="        return token(DE);
-"%="        return token(RE);
-"++"        return token(PP);
-"--"        return token(MM);
 
 {letter}{letter_or_digit}*      return screen();
 
-{digit}+    { s_lookup(token(Constant));
-              return token(Constant);
+{digit}+    { /* s_lookup(token(Constant)  ); */
+              return token(Address);
             }
 
 {white_space}+  ;
@@ -69,12 +58,13 @@ other       .
 /*
  *  reserved word screener
  */
-struct instable {       /* reserved word table */
+struct inst_table {       /* reserved word table */
     char *inst_name;    /* representation */
-    int inst_yylex;     /* yylex() value(= token value) */
-    inst code;          /* machine code */
+    unsigned int inst_yylex;     /* yylex() value(= token value) */
+    unsigned short inst_code;          /* machine code */
  };
- static struct instable  instable[] = {            /* sorted */
+
+ static struct inst_table  inst_table[] = {            /* sorted */
     { "ADDA", token(ADDA), 4},
     { "ADDL", token(ADDL), 5},
     { "AND", token(AND), 8},
@@ -119,38 +109,38 @@ struct instable {       /* reserved word table */
 
 static int screen()
 {
-    struct instable *low = instable,
-    *high = END(instable),
-    *mid;
+    struct inst_table *low = inst_table,
+        *high = END(inst_table),
+        *mid;
     int c;
 
     while(low <= high)
     {
         mid = low + (high-low)/2;
-        if ((c = strcmp(mid->rw_name, yytext)) == 0)
-            return mid->rw_yylex;
+        if ((c = strcmp(mid->inst_name, yytext)) == 0)
+            return mid->inst_yylex;
         else if (c < 0)
             low = mid + 1;
         else
             high = mid - 1;
     }
-    s_lookup(token(Identifier));
-    return token(Identifier);
+    s_lookup(token(Inst_code));
+    return token(Inst_code);
 }
 
 #ifdef DEBUG
 
 s_lookup(yylex)
-int yylex;          /* Constant or Identifier */
+int yylex;          /* Constant or Inst_code */
 {
 //    extern char yytext[];
     extern char *yytext;
 
     switch(yylex){
-        case Constant:
-            yylval.y_str = strsave(yytext);
-            break;
-        case Identifier:
+//        case Constant:
+//            yylval.y_str = strsave(yytext);
+//            break;
+        case Inst_code:
             if (yylval.y_sym = s_find(yytext))
                break;  
             yylval.y_sym = s_create(yytext);

@@ -22,14 +22,14 @@ struct inst_tab {
     ushort   r;              /* r or r1 if adr==0xffff, no r if r==0xffff */
     ushort   x;              /* x or r2 if adr==0xffff, no x if x==0xffff */
     ushort   adr;            /* address, r -> r1 & x -> r2 if adr=0 */
-}
+};
 %}
 
 %union {
     struct inst_tab *y_inst;  /* Instruction */
-    ushort y_gr;               /* # of general register */
-    ushort y_adr;              /* address */
-    ushort y_lab;              /* label */
+    unsigned short y_gr;      /* # of general register */
+    unsigned  y_adr;          /* address */
+    unsigned  y_lab;          /* label */
 }
 
 /*
