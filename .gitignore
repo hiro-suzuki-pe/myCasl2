@@ -1,2 +1,4 @@
 casl/casl.tab.c
 casl/casl.tab.h
+casl/lex.yy.c
+casl/*.o
