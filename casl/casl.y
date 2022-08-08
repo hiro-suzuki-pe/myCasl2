@@ -16,13 +16,20 @@
 
 // extern int l_offset, l_max;
 
+#define ushort  unsigned short
+struct inst_tab {
+    ushort   inst_code;      /* Instruction code */
+    ushort   r;              /* r or r1 if adr==0xffff, no r if r==0xffff */
+    ushort   x;              /* x or r2 if adr==0xffff, no x if x==0xffff */
+    ushort   adr;            /* address, r -> r1 & x -> r2 if adr=0 */
+}
 %}
 
 %union {
     struct inst_tab *y_inst;  /* Instruction */
-    int y_gr;               /* # of general register */
-    int y_adr;              /* address */
-    int y_lab;              /* label */
+    ushort y_gr;               /* # of general register */
+    ushort y_adr;              /* address */
+    ushort y_lab;              /* label */
 }
 
 /*
@@ -77,8 +84,10 @@
 /*
  *  typed non-terminal symbols
  */
+/*
 %type   <y_ope> operand
-
+*/
+%type   <y_inst> instruction operand
 
 /*
  *  precedence table
@@ -96,16 +105,20 @@ instructions
     | instructions error
 
 instruction
-    : Label Inst_code operand   { $$ = $1; }
-    | Label error 
-    | Inst_code operand  { $$ = $1; }
+    : Label Inst_code operand   { $$ = $2; }
+    | Label error {yyerrok; }
+    | Inst_code operand  { $$ = $2; }
     | Inst_code  { $$ = $1; }
     | Inst_code error
-    | error
 
 operand
     : Gr ',' Gr
+        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $3; $$->adr = 0; }
     | Gr ',' Address
+        { $$->inst_code = 0xffff; $$->r = $1; $$->x = 0xffff; $$->adr = $3; }
     | Gr ',' Address ',' Gr
+        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $5; $$->adr = $3; }
     | Address 
+        { $$->inst_code =  $$->r = $$->x = 0xffff; $$->adr = $1; }
     | Address ',' Gr
+        { $$->inst_code =  $$->r = 0xffff; $$->x = $3; $$->adr = $1; }
