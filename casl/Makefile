@@ -4,7 +4,7 @@ YACC	= bison -d
 LEX		= flex
 
 # (2)コンパイルオプション
-CFLAGS    = -w
+CFLAGS    = -Wall #  -w
 
 # (3)実行ファイル名
 TARGET  = casl

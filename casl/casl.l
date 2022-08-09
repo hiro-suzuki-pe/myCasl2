@@ -3,6 +3,7 @@
      *  CASL2 -- lexical analysis
      */
 #include <assert.h>
+#include    <string.h>
 #include "casl.tab.h"
 #define token(x)    x
 #define yywrap()    1
@@ -11,13 +12,14 @@ int yynerrs = 0;
 
 #define END(v)  (v-1 + sizeof v/sizeof v[0])
 static int screen();
-main()
+int main()
 {
     char *p;
 
     assert(sizeof(int) >= sizeof(char *));
-    while(p = (char *)yylex())
-    printf("%-10.10s is \"%s\"\n", p, yytext);
+    p = (char *)yylex();
+    while(p)
+        printf("%-10.10s is \"%s\"\n", p, yytext);
 }
 
 %}

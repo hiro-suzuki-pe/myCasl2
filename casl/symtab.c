@@ -104,7 +104,7 @@ struct symtab * s_find (name)
  *  interface for lexical analyzer:
  *  locate or enter Identifier, save text of Constant
  */
-s_lookup (yylex)
+void s_lookup (yylex)
     int yylex;          /* Constant or Identifier */ 
 {
     extern char yytext[];   /* text of symbol */ 

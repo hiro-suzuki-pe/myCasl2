@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include "symtab.h"
 
-#define VARARG  fmt, v1, v2, v3, v4, v5
-#define VARPARM (VARARG)    char *fmt;
+#define VARARG  char *fmt, int v1, int v2, int v3, int v4, int v5
+#define VARPARM (VARARG)    // char *fmt;
 
 /* 
  *  global variables for parsing
@@ -17,14 +17,14 @@
 static char *source; /* current input line name */
 
                          /*VARARGS1*/
-message VARPARM{
+void message VARPARM{
     yywhere();
     fprintf(yyerfp, VARARG);
     putc('\n', yyerfp);
 }
 
                          /*VARARGS1*/
-error VARPARM{
+void error VARPARM{
     extern int yynerrs;
 
     fprintf(yyerfp, "[error %d] ", ++yynerrs);
@@ -32,19 +32,19 @@ error VARPARM{
 }
 
                          /*VARARGS1*/
-warning VARPARM{
+void warning VARPARM{
     fputs("[warning] ", yyerfp);
     message(VARARG);
 }
                          /*VARARGS1*/
-fatal VARPARM{
+void fatal VARPARM{
     fputs("[fatal error] ", yyerfp);
     message(VARARG);
     exit(1);
 }
 
                          /*VARARGS1*/
-bug VARPARM{
+void bug VARPARM{
     fputs("BUG: ", yyerfp);
     message(VARARG);
     exit(1);
