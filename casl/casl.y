@@ -95,8 +95,8 @@ struct inst_tab {
  %%
 
  program
-    : {init();}
-        instructions {end_program();}
+    : {/* init(); */}
+        instructions {/* end_program(); */}
 
 instructions
     : instruction

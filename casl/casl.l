@@ -1,13 +1,16 @@
 %{
     /*
-     *  sample C -- lexical analysis
+     *  CASL2 -- lexical analysis
      */
-
-#ifdef DEBUG       /* debugging version - if assert ok */
-
 #include <assert.h>
+#include "casl.tab.h"
+#define token(x)    x
+#define yywrap()    1
 
+int yynerrs = 0;
 
+#define END(v)  (v-1 + sizeof v/sizeof v[0])
+static int screen();
 main()
 {
     char *p;
@@ -17,21 +20,6 @@ main()
     printf("%-10.10s is \"%s\"\n", p, yytext);
 }
 
-s_lookup()  {}
-int yynerrs = 0;
-
-#define token(x)    x
-
-#else   !DEBUG      /* production version */
-
-#include "casl.tab.h"
-#define token(x)    x
-int yynerrs = 0;
-
-#endif  DEBUG
-
-#define END(v)  (v-1 + sizeof v/sizeof v[0])
-static int screen();
 %}
 
 letter      [a-zA-Z_]
