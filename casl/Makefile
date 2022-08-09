@@ -10,7 +10,7 @@ CFLAGS    = -w
 TARGET  = casl
 
 # (4)コンパイル対象のソースコード
-SRCS    = casl.tab.c lex.yy.c
+SRCS    = casl.tab.c lex.yy.c message.c symtab.c
 
 # (5)オブジェクトファイル名
 OBJS    = $(SRCS:.c=.o)
@@ -22,21 +22,19 @@ INCDIR  = #		-I../inc
 LIBDIR  = 
 
 # (8)追加するライブラリファイル
-LIBS    = 	#	-ll -lfl
+LIBS    = 	 # -lfl  # 	-ll
 
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
-#    $(CC) -o $@ $^ $(LIBDIR) $(LIBS)
+	$(CC) -o $@ $^ $(LIBDIR) $(LIBS)
 
 # (10)オブジェクトファイル生成
-#$(OBJS): $(SRCS)
-#    $(CC) $(CFLAGS) $(INCDIR) -c $(SRCS)
 .c.o:	
 	$(CC) $(CFLAGS) $(INCDIR)	-c $<
 casl.tab.c:	casl.y
-	$(YACC) $<
-lex.yy.c: casl.l
-	$(LEX) $<
+	$(YACC) $?
+lex.yy.c: casl.l casl.tab.h
+	$(LEX) $?
 
 # (11)"make all"で make cleanとmakeを同時に実施。
 all: clean $(OBJS) $(TARGET)

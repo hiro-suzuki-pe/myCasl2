@@ -2,3 +2,7 @@ casl/casl.tab.c
 casl/casl.tab.h
 casl/lex.yy.c
 casl/*.o
+.vscode/dryrun.log
+.vscode/configurationCache.log
+.vscode/targets.log
+casl/casl.exe
