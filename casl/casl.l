@@ -12,21 +12,14 @@ int yynerrs = 0;
 
 #define END(v)  (v-1 + sizeof v/sizeof v[0])
 static int screen();
-int main()
-{
-    char *p;
 
-    assert(sizeof(int) >= sizeof(char *));
-    p = (char *)yylex();
-    while(p)
-        printf("%-10.10s is \"%s\"\n", p, yytext);
-}
 
 %}
 
-letter      [a-zA-Z_]
+letter      [A-Z_]
 digit       [0-9]
-letter_or_digit [a-zA-Z_0-9]
+hdigit      [A-F0-9]
+letter_or_digit [A-Z_0-9]
 white_space [ \t\n]
 blank       [ \t]
 other       .
@@ -35,108 +28,83 @@ other       .
 
 ^"#"{blank}*{digit}+({blank}+.*)?\n     yymark();
 
-{letter}{letter_or_digit}*      return screen();
+{letter}{letter_or_digit}*   { printf("letter: %s\n", yytext); return screen(); }
 
 {digit}+    { /* s_lookup(token(Constant)  ); */
               return token(Address);
             }
+={digit}+ { printf("literal(D): %s\n", yytext); }
+#{hdigit}+  { printf("Hex: %s\n", yytext); }
+=#{hdigit}+ { printf("literal(H): %s\n", yytext); }
+
 
 {white_space}+  ;
+;.*\n           ;
 {other}     return token(yytext[0]);
 
 %%
 /*
  *  reserved word screener
  */
-struct inst_table {       /* reserved word table */
-    char *inst_name;    /* representation */
-    unsigned int inst_yylex;     /* yylex() value(= token value) */
-    unsigned short inst_code;          /* machine code */
- };
 
  static struct inst_table  inst_table[] = {            /* sorted */
-    { "ADDA", token(ADDA), 4},
-    { "ADDL", token(ADDL), 5},
-    { "AND", token(AND), 8},
-    { "CALL", token(CALL), 25},
-    { "CPA", token(CPA), 11},
-    { "CPL", token(CPL), 12},
-    { "DC", token(DC), -1},
-    { "DS", token(DS), -1},
-    { "END", token(END), -1},
-    { "IN", token(IN), -1},
-    { "JMI", token(JMI), 18},
-    { "JNE", token(JNE), 20},
-    { "JNZ", token(JNZ), 19},
-    { "JOV", token(JOV), 21},
-    { "JPL", token(JPL), 17},
-    { "JUMP", token(JUMP), 22},
-    { "LAD", token(LAD), 3},
-    { "LD", token(LD), 1},
-    { "NOP", token(NOP), 0},
-    { "OR", token(OR), 9},
-    { "OUT", token(OUT), -1},
-    { "POP", token(POP), 24},
-    { "PUSH", token(PUSH), 23},
-    { "RET", token(RET), 26},
-    { "RPOP", token(RPOP), -1},
-    { "RPUSH", token(RPUSH), -1},
-    { "RSVD1", token(RSVD1), 28},
-    { "RSVD2", token(RSVD2), 29},
-    { "RSVD3", token(RSVD3), 30},
-    { "RSVD4", token(RSVD4), 31},
-    { "SLA", token(SLA), 13},
-    { "SLL", token(SLL), 15},
-    { "SRA", token(SRA), 14},
-    { "SRL", token(SRL), 16},
-    { "ST", token(ST), 2},
-    { "START", token(START), -1},
-    { "SUBA", token(SUBA), 6},
-    { "SUBL", token(SUBL), 7},
-    { "SVC", token(SVC), 27},
-    { "XOR", token(XOR), 10}
+    { "ADDA", 4},
+    { "ADDL", 5},
+    { "AND", 8},
+    { "CALL", 25},
+    { "CPA", 11},
+    { "CPL", 12},
+    { "DC", -1},
+    { "DS", -1},
+    { "END", -1},
+    { "IN", -1},
+    { "JMI", 18},
+    { "JNE", 20},
+    { "JNZ", 19},
+    { "JOV", 21},
+    { "JPL", 17},
+    { "JUMP", 22},
+    { "LAD", 3},
+    { "LD", 1},
+    { "NOP", 0},
+    { "OR", 9},
+    { "OUT", -1},
+    { "POP", 24},
+    { "PUSH", 23},
+    { "RET", 26},
+    { "RPOP", -1},
+    { "RPUSH", -1},
+    { "RSVD1", 28},
+    { "RSVD2", 29},
+    { "RSVD3",  30},
+    { "RSVD4", 31},
+    { "SLA", 13},
+    { "SLL", 15},
+    { "SRA", 14},
+    { "SRL", 16},
+    { "ST", 2},
+    { "START", -1},
+    { "SUBA", 6},
+    { "SUBL", 7},
+    { "SVC", 27},
+    { "XOR", 10}
  };
 
 static int screen()
 {
-    struct inst_table *low = inst_table,
-        *high = END(inst_table),
-        *mid;
-    int c;
+    char *s_reg[] = {
+        "GR0", "GR1", "GR2", "GR3", "GR4", "GR5", "GR6", "GR7"};
 
-    while(low <= high)
-    {
-        mid = low + (high-low)/2;
-        if ((c = strcmp(mid->inst_name, yytext)) == 0)
-            return mid->inst_yylex;
-        else if (c < 0)
-            low = mid + 1;
-        else
-            high = mid - 1;
+    int n = sizeof (inst_table)/ sizeof (inst_table[0]);
+    for (int i = 0; i < n; i++){
+        if (strcmp(yytext, inst_table[i].inst_name))
+            return token(Inst_code);
     }
-    s_lookup(token(Inst_code));
-    return token(Inst_code);
+    for (int i = 0; i < 8; i++){
+        if (strcmp(yytext, s_reg[i]))
+            return token(Gr);
+    }
+    s_lookup(yytext);
+    return token(Label);
 }
 
-#ifdef DEBUG
-
-s_lookup(yylex)
-int yylex;          /* Constant or Inst_code */
-{
-//    extern char yytext[];
-    extern char *yytext;
-
-    switch(yylex){
-//        case Constant:
-//            yylval.y_str = strsave(yytext);
-//            break;
-        case Inst_code:
-            if (yylval.y_sym = s_find(yytext))
-               break;  
-            yylval.y_sym = s_create(yytext);
-            break;
-        default:
-            bug("s_lookup");
-    }
-}
-#endif

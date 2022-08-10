@@ -15,9 +15,26 @@ struct symtab {
     struct symtab *s_next;  /* next entry */
 };
 
+struct inst_table {       /* reserved word table */
+    char *inst_name;    /* representation */
+//    unsigned int inst_yylex;     /* yylex() value(= token value) */
+    unsigned short inst_code;          /* machine code */
+ };
+ 
+struct label_tab {
+    char *s_name;   /* name pointer */
+    ushort adr;     /* address */
+
+}
+
 #define s_pnum  s_.s_num
 #define NOT_SET (-1)
 #define s_plist s_.s_link
+
+
+enum data_type {
+    INST_CODE, LABEL, LITERAL, REGISTER
+};
 
 /*
  *  s_type values

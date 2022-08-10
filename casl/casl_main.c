@@ -2,8 +2,45 @@
  *  sampleC -- symbol table definition and manipulation
  */
 #include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
 #include "casl.h"
 #include "casl.tab.h"
+
+/* 
+ *  main function
+ */
+int main(int argc, char **argv)
+{
+    extern int yylex();
+    extern int yyparse();
+    extern char *yytext;
+    extern FILE *yyin;
+    char *p;
+
+    if (argc != 2){
+        fprintf(stderr, "ERROR: %s takes just 1 parameter (CASL file)\n", argv[0]);
+        exit(1);
+    }
+    FILE *fp = fopen(argv[1], "r");
+    if (fp == NULL){
+        fprintf(stderr, "ERROR: cannot open %s\n", argv[1]);
+        exit(1);
+    } else{
+        printf("%s: input file %s\n", argv[0], argv[1]);
+    }
+    yyin = fp;
+    yyparse();
+    /*
+    assert(sizeof(int) >= sizeof(char *));
+    p = (char *)yylex();
+    while(p)
+        printf("%-10.10s is \"%s\"\n", p, yytext);
+    */
+
+    fclose(fp);
+}
+
 
 /*
  *  symbol table
@@ -102,27 +139,13 @@ struct symtab * s_find (name)
 
 /*
  *  interface for lexical analyzer:
- *  locate or enter Identifier, save text of Constant
+ *  locate or enter INST_CODE, LABEL, LITERAL, REGISTER
  */
-void s_lookup (yylex)
-    int yylex;          /* Constant or Identifier */ 
+void s_lookup (enum data_type d_type)
 {
-    extern char yytext[];   /* text of symbol */ 
+    extern char *yytext;   /* text of symbol */ 
     
-    /*
-    switch (yylex) { 
-        case Constant:
-            yylval.y_str = strsave (yytext);
-            break;
-        case Identifier:
-            if (yylval.y_sym = s_find (yytext))
-                break; 
-            yylval.y_sym = s_create(yytext);
-            break; 
-        default:
-            bug("s_lookup");
-    }
-    */
+ 
     if (yylval.y_inst = s_find (yytext))
         return; 
     yylval.y_inst = s_create(yytext);

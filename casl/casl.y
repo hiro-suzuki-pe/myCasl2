@@ -40,6 +40,7 @@ struct inst_tab {
 %token  <y_adr>     Address
 %token  <y_label>   Label
 
+/*
 %token	START
 %token	END
 %token	DS
@@ -80,6 +81,7 @@ struct inst_tab {
 %token	RSVD2
 %token	RSVD3
 %token	RSVD4
+*/
 
 /*
  *  typed non-terminal symbols
@@ -105,15 +107,15 @@ instructions
     | instructions error
 
 instruction
-    : Label Inst_code operand   { $$ = $2; }
+    : Label Inst_code operand   { $$ = $2; printf("Label Inst_code operand.\n"); }
     | Label error {yyerrok; }
-    | Inst_code operand  { $$ = $2; }
-    | Inst_code  { $$ = $1; }
+    | Inst_code operand  { $$ = $2;  printf("Inst_code operand .\n"); }
+    | Inst_code  { $$ = $1;  printf("Inst_code (s).\n"); }
     | Inst_code error
 
 operand
     : Gr ',' Gr
-        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $3; $$->adr = 0; }
+        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $3; $$->adr = 0; printf("operand.\n");}
     | Gr ',' Address
         { $$->inst_code = 0xffff; $$->r = $1; $$->x = 0xffff; $$->adr = $3; }
     | Gr ',' Address ',' Gr
