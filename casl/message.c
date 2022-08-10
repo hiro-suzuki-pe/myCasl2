@@ -2,10 +2,10 @@
  *  message routines
  */
 #include <stdio.h>
-#include "symtab.h"
+#include "casl.h"
 
-#define VARARG  char *fmt, int v1, int v2, int v3, int v4, int v5
-#define VARPARM (VARARG)    // char *fmt;
+#define VARARG  fmt, v1, v2, v3, v4, v5
+#define VARPARM (VARARG)    char *fmt;
 
 /* 
  *  global variables for parsing
@@ -59,7 +59,7 @@ char *strsave(s)
         strcpy(cp, s);
         return cp;
     }
-    fatal("No more room to save strings.");
+    fatal("No more room to save strings.", 0, 0, 0, 0, 0);
 }
 
 /*

@@ -4,13 +4,13 @@ YACC	= bison -d
 LEX		= flex
 
 # (2)コンパイルオプション
-CFLAGS    = -Wall #  -w
+CFLAGS    = -w #  -Wall
 
 # (3)実行ファイル名
 TARGET  = casl
 
 # (4)コンパイル対象のソースコード
-SRCS    = casl.tab.c lex.yy.c message.c symtab.c
+SRCS    = casl.c casl.tab.c lex.yy.c message.c 
 
 # (5)オブジェクトファイル名
 OBJS    = $(SRCS:.c=.o)

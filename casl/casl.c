@@ -2,7 +2,7 @@
  *  sampleC -- symbol table definition and manipulation
  */
 #include <stdlib.h>
-#include "symtab.h"
+#include "casl.h"
 #include "casl.tab.h"
 
 /*
