@@ -8,45 +8,50 @@
  */
 
 %{
-//#include "symtab.h"     /* symbol table mnemonics */
-//#include "sim.h"        /* code generation mnemonics */
 
-//#define OFFSET(x)       (((struct symtab *)x)->s_offset)
-//#define NAME(x)         (((struct symtab *)x)->s_name)
+#include "casl.h"
 
-// extern int l_offset, l_max;
-
-#define ushort  unsigned short
-struct inst_tab {
-    ushort   inst_code;      /* Instruction code */
+struct operand {
     ushort   r;              /* r or r1 if adr==0xffff, no r if r==0xffff */
     ushort   x;              /* x or r2 if adr==0xffff, no x if x==0xffff */
     ushort   adr;            /* address, r -> r1 & x -> r2 if adr=0 */
 };
+
+ushort  g_instruction_no = 0;
+struct instruction g_instruction [MAX_INSTRUCTION];
+
+ushort  g_label_no = 0;
+struct label_table  g_label_table[MAX_LABEL];
+
+ushort  g_DC_no = 0;
+struct  DC_table    g_DC_table[MAX_DC];
+
 %}
 
 %union {
-    struct inst_tab *y_inst;  /* Instruction */
-    unsigned short y_gr;      /* # of general register */
-    unsigned  y_adr;          /* address */
-    unsigned  y_lab;          /* label */
+    struct instruction  *y_instruction; /* Instruction */
+    struct operand      *y_operand;     /* Operand */
+    unsigned short      y_code;         /* instruction code */
+    unsigned short      y_gr;           /* # of general register */
+    unsigned short      y_adr;          /* address */
+    unsigned short      y_label;        /* idx of label */
+    unsigned short      y_literal;      /* idx of literal table */
 }
 
 /*
  *  terminal symbols
  */
-%token  <y_inst>    Inst_code
+%token  <y_code>    Inst_code
 %token  <y_gr>      Gr
 %token  <y_adr>     Address
 %token  <y_label>   Label
+%token  <y_literal> Literal
 
 /*
  *  typed non-terminal symbols
  */
-/*
-%type   <y_ope> operand
-*/
-%type   <y_inst> instruction operand
+%type   <y_instruction> instruction 
+%type   <y_operand>     operand
 
 /*
  *  precedence table
@@ -64,20 +69,20 @@ instructions
     | instructions error
 
 instruction
-    : Label Inst_code operand   { $$ = $2; printf("Label Inst_code operand.\n"); }
+    : Label Inst_code operand   {  printf("$$:%s, $1:%s, $2:%s", $$, $1, $2); }
     | Label error {yyerrok; }
-    | Inst_code operand  { $$ = $2;  printf("Inst_code operand .\n"); }
-    | Inst_code  { $$ = $1;  printf("Inst_code (s).\n"); }
+    | Inst_code operand  { }
+    | Inst_code  { ; }
     | Inst_code error
 
 operand
-    : Gr ',' Gr
-        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $3; $$->adr = 0; printf("operand.\n");}
+    : Gr ',' Gr {printf("Gr , Gr\n"); }
+        { ;}
     | Gr ',' Address
-        { $$->inst_code = 0xffff; $$->r = $1; $$->x = 0xffff; $$->adr = $3; }
+        { }
     | Gr ',' Address ',' Gr
-        { $$->inst_code = 0xffff; $$->r = $1; $$->x = $5; $$->adr = $3; }
+        {  }
     | Address 
-        { $$->inst_code =  $$->r = $$->x = 0xffff; $$->adr = $1; }
+        {  }
     | Address ',' Gr
-        { $$->inst_code =  $$->r = 0xffff; $$->x = $3; $$->adr = $1; }
+        {  }

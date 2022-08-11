@@ -50,18 +50,6 @@ void bug VARPARM{
     exit(1);
 }
 
-char *strsave(s)
-    register char *s;
-{
-    register char *cp = calloc(strlen(s) + 1, 1);
-
-    if (cp) {
-        strcpy(cp, s);
-        return cp;
-    }
-    fatal("No more room to save strings.", 0, 0, 0, 0, 0);
-}
-
 /*
  *  Auxiliary functions
  */

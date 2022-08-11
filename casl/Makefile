@@ -10,7 +10,7 @@ CFLAGS    = -w -g #  -Wall
 TARGET  = casl
 
 # (4)コンパイル対象のソースコード
-SRCS    = casl.tab.c lex.yy.c message.c casl_main.c 
+SRCS    = casl.tab.c lex.yy.c casl_main.c message.c 
 
 # (5)オブジェクトファイル名
 OBJS    = $(SRCS:.c=.o)
@@ -27,7 +27,7 @@ LIBS    = 	 # -lfl  # 	-ll
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
 	$(CC) -o $@ -g $^ $(LIBDIR) $(LIBS)
-
+	$(TARGET) ..\\fe2013h_12_p1.cas
 # (10)オブジェクトファイル生成
 .c.o:	
 	$(CC) $(CFLAGS) $(INCDIR)	-c $<
