@@ -41,49 +41,6 @@ struct inst_tab {
 %token  <y_label>   Label
 
 /*
-%token	START
-%token	END
-%token	DS
-%token	DC
-%token	IN
-%token	OUT
-%token	RPUSH
-%token	RPOP
-%token	NOP
-%token	LD
-%token	ST
-%token	LAD
-%token	ADDA
-%token	ADDL
-%token	SUBA
-%token	SUBL
-%token	AND
-%token	OR
-%token	XOR
-%token	CPA
-%token	CPL
-%token	SLA
-%token	SRA
-%token	SLL
-%token	SRL
-%token	JPL
-%token	JMI
-%token	JNZ
-%token	JNE
-%token	JOV
-%token	JUMP
-%token	PUSH
-%token	POP
-%token	CALL
-%token	RET
-%token	SVC
-%token	RSVD1
-%token	RSVD2
-%token	RSVD3
-%token	RSVD4
-*/
-
-/*
  *  typed non-terminal symbols
  */
 /*
