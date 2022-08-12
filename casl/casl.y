@@ -11,12 +11,6 @@
 
 #include "casl.h"
 
-struct operand {
-    ushort   r;              /* r or r1 if adr==0xffff, no r if r==0xffff */
-    ushort   x;              /* x or r2 if adr==0xffff, no x if x==0xffff */
-    ushort   adr;            /* address, r -> r1 & x -> r2 if adr=0 */
-};
-
 ushort  g_instruction_no = 0;
 struct instruction g_instruction [MAX_INSTRUCTION];
 
@@ -70,26 +64,43 @@ instructions
 
 instruction
     : Label Inst_code 
-            {  printf("Label Inst_code : %s\t%d\n", 
+            {   $$ = instruction_create($1, $2, NULL); 
+                printf("%-08s\t%8s(%02d)\n", 
                     g_label_table[$1].label,
-                    $2);}
+                    inst_table[$2].name, $2);}
     | Label Inst_code operand   
-        {  printf("Label Inst_code operand\n");
-        printf("$1:%d, $2:%d", $$, $1, $2); }
+            {   $$ = instruction_create($1, $2, $3); 
+                printf("%-08s\t%s(%02d)\n", 
+                    g_label_table[$1].label,
+                    inst_table[$2].name, $2);}
     | Label error 
         { printf("Label error\n"); yyerrok; }
-    | Inst_code operand  {  printf("Inst_code operand\n");  }
-    | Inst_code  {  printf("Inst_code\n");  }
+    | Inst_code operand  {
+        $$ = instruction_create(NULL, $1, $2); 
+                  printf("\t%s(%02d)\n", inst_table[$1].name, $1);}
+    | Inst_code  {   $$ = instruction_create(NULL, $1, NULL); 
+                  printf("\t%s(%02d)\n", inst_table[$1].name, $1);}
     | Inst_code error { printf(" Inst_code error\n"); }
 
 operand
-    : Gr ',' Gr {printf("Gr , Gr\n"); }
-        { ;}
+    : Gr ',' Gr 
+        { $$ = operand_create($1, $3, NULL);
+          printf("GR%d,GR%d\n", $1, $3); }
     | Gr ',' Address
-        { }
+        {   $$ = operand_create($1, 0xffff, address_create(ADDRESS, $3));
+            printf("GR%d,#%04\n", $1, $3); }
     | Gr ',' Address ',' Gr
-        {  }
+         {   $$ = operand_create($1, $5, address_create(ADDRESS, $3));
+             printf("GR%d,#%04,GR%d\n", $1, $3, $5); }
     | Address 
-        {  }
+         {  $$ = operand_create(0xffff, 0xffff, address_create(ADDRESS, $1));
+           printf("#%04\n", $1); }
     | Address ',' Gr
-        {  }
+         {  $$ = operand_create(0xffff, $3, address_create(ADDRESS, $1));
+             printf("#%04,GR%d\n", $1, $3); }
+    | Gr ',' Literal
+        {  $$ = operand_create($1, 0xffff, address_create(LITERAL, $3));
+           printf("GR%d,%s\n", $1, g_DC_table[$3].label); }
+    | Label 
+        {  $$ = operand_create(0xffff, 0xffff, address_create(LABEL, $1));
+           printf("%s\n", g_label_table[$1].label); }

@@ -3,6 +3,7 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include "casl.h"
 #include "casl.tab.h"
@@ -33,10 +34,10 @@ int main(int argc, char **argv)
     yyparse();
     fclose(fp);
 /*
-    print_instruction();
-    print_label_table();
-    print_DC_table();
+    instruction_print();
+    label_table_print();
 */
+    DC_table_print();
 }
 
 /*
@@ -83,17 +84,21 @@ void DC_lookup(char *str)
     return;
 }
 
-void    print_instruction()
+void    instruction_print()
 {
     struct instruction inst;
+    struct operand  ope;
+    struct address  adr;
 
     printf("\n\n<<instruction table (%d entry)>>\n", 
         g_instruction_no);
     for (int i = 0; i < g_instruction_no; i++){
         inst = g_instruction[i];
-        printf("%-8s %-8s %02d %2d %2d %04x\n",
+        ope = inst.ope;
+        adr = ope.adr;
+        printf("%-8s %-8s %02d %2d %2d %2d %04x\n",
             inst.label, inst.name, inst.code, 
-            inst.r, inst.x, inst.adr);
+            ope.r, ope.x, adr.type, adr.value);
     }
 }
 
@@ -108,8 +113,7 @@ void    print_label_table()
     }
 }
 
-
-void    print_DC_table()
+void    DC_table_print()
 {
     struct DC_table dc;
 
@@ -120,3 +124,37 @@ void    print_DC_table()
     }
 }
 
+struct instruction *instruction_create(char *label,
+                 ushort code, struct operand *ope)
+{
+    struct instruction *pinst = 
+        (struct instruction *)malloc(sizeof (struct instruction));
+
+    strcpy(pinst->name, inst_table[code].name);
+    strcpy(pinst->label, label);
+    pinst->code = code;
+    pinst->ope = *ope;
+
+    return pinst;
+}
+
+struct operand *operand_create(ushort r, ushort x, struct address *adr)
+{
+    struct operand *pope = (struct operand *)malloc(sizeof (struct operand));
+
+    pope->r = r;
+    pope->x = x;
+    pope->adr = *adr;
+    
+    return pope;
+}
+
+struct address *address_create(enum adr_type type, ushort value)
+{
+    struct address *paddr = (struct address *)malloc(sizeof (struct address));
+
+    paddr->type = type;
+    paddr->value = value;
+
+    return paddr;
+}

@@ -4,5 +4,6 @@
     "files.associations": {
         "casl.h": "c",
         "casl.tab.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }

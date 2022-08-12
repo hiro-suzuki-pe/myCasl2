@@ -97,9 +97,10 @@ static int screen()
             strcpy(y_inst.name, inst_table[i].name);
             strcpy(y_inst.label, "");
             y_inst.code = inst_table[i].code;
-            y_inst.r = 0xffff;
-            y_inst.x = 0xffff;
-            y_inst.adr = 0xffff;
+            y_inst.ope.r = 0xffff;
+            y_inst.ope.x = 0xffff;
+            y_inst.ope.adr.type = 0xffff;
+            y_inst.ope.adr.value = 0xffff;
             g_instruction[g_instruction_no++] = y_inst;
             yylval.y_code = i;
             return token(Inst_code);
