@@ -69,11 +69,18 @@ instructions
     | instructions error
 
 instruction
-    : Label Inst_code operand   {  printf("$$:%s, $1:%s, $2:%s", $$, $1, $2); }
-    | Label error {yyerrok; }
-    | Inst_code operand  { }
-    | Inst_code  { ; }
-    | Inst_code error
+    : Label Inst_code 
+            {  printf("Label Inst_code : %s\t%d\n", 
+                    g_label_table[$1].label,
+                    $2);}
+    | Label Inst_code operand   
+        {  printf("Label Inst_code operand\n");
+        printf("$1:%d, $2:%d", $$, $1, $2); }
+    | Label error 
+        { printf("Label error\n"); yyerrok; }
+    | Inst_code operand  {  printf("Inst_code operand\n");  }
+    | Inst_code  {  printf("Inst_code\n");  }
+    | Inst_code error { printf(" Inst_code error\n"); }
 
 operand
     : Gr ',' Gr {printf("Gr , Gr\n"); }

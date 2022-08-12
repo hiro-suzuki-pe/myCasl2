@@ -14,6 +14,11 @@
 #define MAX_LABEL   1024
 #define MAX_DC      1024
 
+struct inst_table {
+    char    name[MAX_LENGTH];   /* Instruction code */
+    ushort  code;               /* machine instruction code */
+};
+extern struct inst_table  inst_table[];
 
 struct instruction {
     char    name[MAX_LENGTH];

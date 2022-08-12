@@ -42,24 +42,11 @@ other       .
 {other}     return token(yytext[0]);
 
 %%
+
 /*
  *  reserved word screener
  */
- 
-struct inst_table {
-    char    name[MAX_LENGTH];   /* Instruction code */
-    ushort  code;               /* machine instruction code */
-};
-
- static struct inst_table  inst_table[] = {            /* sorted */
-    { "DC", -1},
-    { "DS", -1},
-    { "END", -1},
-    { "IN", -1},
-    { "OUT", -1},
-    { "RPOP", -1},
-    { "RPUSH", -1},
-    { "START", -1},
+ struct inst_table  inst_table[] = {   
     { "NOP", 0},
     { "LD", 1},
     { "ST", 2},
@@ -88,10 +75,14 @@ struct inst_table {
     { "CALL", 25},
     { "RET", 26},
     { "SVC", 27},
-    { "RSVD1", 28},
-    { "RSVD2", 29},
-    { "RSVD3", 30},
-    { "RSVD4", 31}
+    { "RPOP", 28},
+    { "RPUSH", 29},
+    { "IN", 30},
+    { "OUT", 31},
+    { "DC", -1},
+    { "DS", -1},
+    { "END", -1},
+    { "START", -1}
  };
 
 static int screen()
@@ -110,14 +101,17 @@ static int screen()
             y_inst.x = 0xffff;
             y_inst.adr = 0xffff;
             g_instruction[g_instruction_no++] = y_inst;
+            yylval.y_code = i;
             return token(Inst_code);
         }
     }
     for (int i = 0; i < 8; i++){
-        if (strcmp(yytext, s_reg[i]) == 0)
+        if (strcmp(yytext, s_reg[i]) == 0){
+            yylval.y_gr = i;
             return token(Gr);
+        }
     }
-    label_lookup(yytext);
+    yylval.y_label = label_lookup(yytext);
     return token(Label);
 }
 

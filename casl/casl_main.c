@@ -32,10 +32,11 @@ int main(int argc, char **argv)
     yyin = fp;
     yyparse();
     fclose(fp);
-
+/*
     print_instruction();
     print_label_table();
     print_DC_table();
+*/
 }
 
 /*
@@ -47,9 +48,9 @@ init()
     g_DC_no = 0;
 }
 
-void label_lookup(char *str)
+ushort label_lookup(char *str)
 {
-    int i;
+    ushort i;
 
     for (i = 0; i < g_label_no; i++){
         if (strcmp(str, g_label_table[i].label) == 0)
@@ -60,7 +61,7 @@ void label_lookup(char *str)
         g_label_table[i].adr = 0;
         g_label_no++;
     }
-    return;
+    return i;
 }
 
 void DC_lookup(char *str)
