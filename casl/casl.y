@@ -91,7 +91,7 @@ operand
             printf("GR%d,#%04\n", $1, $3); }
     | Gr ',' Address ',' Gr
          {   $$ = operand_create($1, $5, address_create(ADDRESS, $3));
-             printf("GR%d,#%04,GR%d\n", $1, $3, $5); }
+             printf("GR%d,#%04x,GR%d\n", $1, $3, $5); }
     | Address 
          {  $$ = operand_create(0xffff, 0xffff, address_create(ADDRESS, $1));
            printf("#%04\n", $1); }

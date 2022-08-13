@@ -20,11 +20,12 @@ struct inst_table {
 };
 extern struct inst_table  inst_table[];
 
-enum adr_type { ADDRESS, LABEL, LITERAL };
+enum adr_type { ADDRESS, LABEL, LITERAL, UNKNOWN };
 struct address {
     enum adr_type   type;
     ushort value;
 };
+struct address *address_create(enum adr_type type, ushort value);
 
 struct operand {
     ushort  r;              /* r or r1 if adr==0xffff, no r if r==0xffff */
@@ -59,7 +60,4 @@ struct  DC_table {
 extern ushort  g_DC_no;
 extern struct  DC_table    g_DC_table[];
 void    DC_table_print();
-
-
-
 

@@ -131,9 +131,18 @@ struct instruction *instruction_create(char *label,
         (struct instruction *)malloc(sizeof (struct instruction));
 
     strcpy(pinst->name, inst_table[code].name);
-    strcpy(pinst->label, label);
+    if (label == NULL)
+        strcpy(pinst->label, "");
+    else
+        strcpy(pinst->label, label);
     pinst->code = code;
-    pinst->ope = *ope;
+    if (ope == NULL){
+        pinst->ope.r = 0xffff;
+        pinst->ope.x = 0xffff;
+        pinst->ope.adr = *address_create(UNKNOWN, 0);   
+    }
+    else
+        pinst->ope = *ope;
 
     return pinst;
 }
@@ -144,7 +153,12 @@ struct operand *operand_create(ushort r, ushort x, struct address *adr)
 
     pope->r = r;
     pope->x = x;
-    pope->adr = *adr;
+    if (adr == NULL){
+        pope->adr.type = UNKNOWN;
+        pope->adr.value = 0;
+    }
+    else
+        pope->adr = *adr;
     
     return pope;
 }
