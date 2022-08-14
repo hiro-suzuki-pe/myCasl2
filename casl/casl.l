@@ -19,26 +19,27 @@ letter      [A-Z_]
 digit       [0-9]
 hdigit      [A-F0-9]
 letter_or_digit [A-Z_0-9]
-white_space [ \t\n]
-blank       [ \t]
+white_space [ \t]
+nl          \n
+sign        [\-\+]
 other       .
 
 %%
 
-^"#"{blank}*{digit}+({blank}+.*)?\n     yymark();
 
 {letter}{letter_or_digit}*   { return screen(); }
 
-{digit}+    { /* s_lookup(token(Constant)  ); */
-              return token(Address);
-            }
-#{hdigit}+  { printf("Hex: %s\n", yytext); }
-={digit}+   { DC_lookup(yytext); }
-=#{hdigit}+ {  DC_lookup(yytext); }
-
-
-{white_space}+  ;
-;.*\n           ;
+{sign}?{digit}+     { yylval.y_adr = atoi(yytext);
+                return token(Address); }
+#{hdigit}+          { printf("Hex: %s\n", yytext); }
+={sign}?{digit}+    { yylval.y_literal = DC_lookup(yytext); 
+                        return Literal; }
+=#{hdigit}+         { yylval.y_literal = DC_lookup(yytext); 
+                        return Literal; }
+{white_space}+      ;
+;[^\n]*\n           { return token(NL);}
+\n                  { return token(NL);}
+<<EOF>>     return END_OF_FILE;     /* Reach the end of file */
 {other}     return token(yytext[0]);
 
 %%
@@ -97,11 +98,10 @@ static int screen()
             strcpy(y_inst.name, inst_table[i].name);
             strcpy(y_inst.label, "");
             y_inst.code = inst_table[i].code;
-            y_inst.ope.r = 0xffff;
-            y_inst.ope.x = 0xffff;
-            y_inst.ope.adr.type = 0xffff;
-            y_inst.ope.adr.value = 0xffff;
-            g_instruction[g_instruction_no++] = y_inst;
+            y_inst.ope.r = -1;
+            y_inst.ope.x = -1;
+            y_inst.ope.adr.type = -1;
+            y_inst.ope.adr.value = -1;
             yylval.y_code = i;
             return token(Inst_code);
         }
