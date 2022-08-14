@@ -39,7 +39,7 @@ other       .
 {white_space}+      ;
 ;[^\n]*\n           { return token(NL);}
 \n                  { return token(NL);}
-<<EOF>>     return END_OF_FILE;     /* Reach the end of file */
+<<EOF>>             return END_OF_FILE;
 {other}     return token(yytext[0]);
 
 %%
