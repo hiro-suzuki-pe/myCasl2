@@ -8,7 +8,7 @@
         "name": "C/C++ Runner: Debug Session",
         "type": "cppdbg",
         "request": "launch",
-        "args": ["..\\fe2013h_12_p1.cas"],
+        "args": ["..\\test.cas"],
         "stopAtEntry": false,
         "cwd": "E:\\myCasl2\\casl",
         "environment": [],

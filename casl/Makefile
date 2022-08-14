@@ -27,7 +27,7 @@ LIBS    = 	 # -lfl  # 	-ll
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
 	$(CC) -o $@ -g $^ $(LIBDIR) $(LIBS)
-	$(TARGET) ..\\fe2013h_12_p1.cas
+	$(TARGET) ..\\test.cas
 # (10)オブジェクトファイル生成
 .c.o:	
 	$(CC) $(CFLAGS) $(INCDIR)	-c $<

@@ -33,11 +33,11 @@ int main(int argc, char **argv)
     yyin = fp;
     yyparse();
     fclose(fp);
-/*
+
     instruction_print();
     label_table_print();
-*/
     DC_table_print();
+
 }
 
 /*
@@ -49,9 +49,9 @@ init()
     g_DC_no = 0;
 }
 
-ushort label_lookup(char *str)
+int label_lookup(char *str)
 {
-    ushort i;
+    int i;
 
     for (i = 0; i < g_label_no; i++){
         if (strcmp(str, g_label_table[i].label) == 0)
@@ -90,23 +90,40 @@ void    instruction_print()
     struct operand  ope;
     struct address  adr;
 
-    printf("\n\n<<instruction table (%d entry)>>\n", 
+    printf("\n<<instruction table (%d entry)>>\n", 
         g_instruction_no);
+    printf("%-8s %-8s %-2s %-2s %-2s %-2s %-sx\n",
+        "label", "inst", "code", "r", "x", "type", "address");
     for (int i = 0; i < g_instruction_no; i++){
         inst = g_instruction[i];
         ope = inst.ope;
         adr = ope.adr;
-        printf("%-8s %-8s %02d %2d %2d %2d %04x\n",
-            inst.label, inst.name, inst.code, 
-            ope.r, ope.x, adr.type, adr.value);
+        printf("%-8s %-8s %04d ", inst.label, inst.name, inst.code); 
+        if (ope.r == -1)
+            printf("   ");
+        else
+            printf("%2d ", ope.r); 
+
+        if (ope.x == -1)
+            printf("   ");
+        else
+            printf("%2d ", ope.x); 
+
+        if (adr.type == ADDRESS)
+            printf("A  %04x", adr.value&0x0ffff);
+        else if (adr.type == LABEL)
+            printf("L  %04x", adr.value);
+        else if (adr.type == LITERAL)
+            printf("N  %04x", adr.value);
+        printf("\n");
     }
 }
 
-void    print_label_table()
+void    label_table_print()
 {
     struct label_table lbl;
 
-    printf("\n\n<<label table (%d entry)>>\n", g_label_no);
+    printf("<<label table (%d entry)>>\n", g_label_no);
     for (int i = 0; i < g_label_no; i++){
         lbl = g_label_table[i];
         printf("%-8s  %04x\n", lbl.label,lbl.adr);
@@ -117,28 +134,28 @@ void    DC_table_print()
 {
     struct DC_table dc;
 
-    printf("\n\n<<DC table (%d entry)>>\n", g_DC_no);
+    printf("<<DC table (%d entry)>>\n", g_DC_no);
     for (int i = 0; i < g_DC_no; i++){
         dc = g_DC_table[i];
         printf("%-8s  %04x\n", dc.label, dc.val);
     }
 }
 
-struct instruction *instruction_create(char *label,
-                 ushort code, struct operand *ope)
+struct instruction *instruction_create(int label_idx,
+                 int code, struct operand *ope)
 {
     struct instruction *pinst = 
         (struct instruction *)malloc(sizeof (struct instruction));
 
     strcpy(pinst->name, inst_table[code].name);
-    if (label == NULL)
+    if (g_label_no < 0)
         strcpy(pinst->label, "");
     else
-        strcpy(pinst->label, label);
+        strcpy(pinst->label, g_label_table[label_idx].label);
     pinst->code = code;
     if (ope == NULL){
-        pinst->ope.r = 0xffff;
-        pinst->ope.x = 0xffff;
+        pinst->ope.r = -1;
+        pinst->ope.x = -1;
         pinst->ope.adr = *address_create(UNKNOWN, 0);   
     }
     else
@@ -147,7 +164,7 @@ struct instruction *instruction_create(char *label,
     return pinst;
 }
 
-struct operand *operand_create(ushort r, ushort x, struct address *adr)
+struct operand *operand_create(int r, int x, struct address *adr)
 {
     struct operand *pope = (struct operand *)malloc(sizeof (struct operand));
 
@@ -163,7 +180,7 @@ struct operand *operand_create(ushort r, ushort x, struct address *adr)
     return pope;
 }
 
-struct address *address_create(enum adr_type type, ushort value)
+struct address *address_create(enum adr_type type, int value)
 {
     struct address *paddr = (struct address *)malloc(sizeof (struct address));
 
