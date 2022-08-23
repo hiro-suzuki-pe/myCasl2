@@ -77,6 +77,8 @@ void DC_lookup(char *str)
         strcpy(g_DC_table[i].label, str);
         if (str[1] == '#')
             g_DC_table[i].val = strtol(&str[2], NULL, 16);
+        else if (str[1] == '\'')
+            g_DC_table[i].val = str[2] - '0';
         else
             g_DC_table[i].val = atoi(&str[1]);
         g_DC_no++;

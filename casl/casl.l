@@ -36,6 +36,8 @@ other       .
                         return Literal; }
 =#{hdigit}+         { yylval.y_literal = DC_lookup(yytext); 
                         return Literal; }
+=\'{digit}\'         { yylval.y_literal = DC_lookup(yytext); 
+                        return Literal; }
 {white_space}+      ;
 ;[^\n]*\n           { return token(NL);}
 \n                  { return token(NL);}
@@ -68,7 +70,7 @@ other       .
     { "JPL", 17},
     { "JMI", 18},
     { "JNZ", 19},
-    { "JNE", 20},
+    { "JZE", 20},
     { "JOV", 21},
     { "JUMP", 22},
     { "PUSH", 23},
