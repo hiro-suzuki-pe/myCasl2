@@ -5,7 +5,7 @@ DTOB	START
 LP		CPL 	GR1, GR2	; 変換終了?
 		JZE 	FIN 
 		LD 		GR4, 0, GR1 ;数字1文字の取出し
-		SUBL 	GR4 ='0' 	; 1桁を数値に変換
+		SUBL 	GR4, ='0' 	; 1桁を数値に変換
 		SLL 	GR0, 1 		; GR0 を 10倍して GR4 を加算
 		LD 		GR5, GR0
 		SLL		GR5,2 
