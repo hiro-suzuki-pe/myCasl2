@@ -27,7 +27,7 @@ SETWD 	LD 		GR3, GR3
 		LD 		GR2, GR6 
 		SUBL 	GR2, GR1 
 		CALL 	DTOB			; 数字列を数値に変換
-		ST		GR0, O, GR7 
+		ST		GR0, 0, GR7 
 		LD		GR3, =-1		;数字列の処理中状態を解除
 		LAD		GR7,1,GR7	
 FIN2	RET 
