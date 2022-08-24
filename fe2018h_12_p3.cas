@@ -6,7 +6,7 @@ MULT	START
 		LD 		GR5, 1, GR2	; GR5 ← 乗数
 		LD		GR0, =0
 		LD		 GR5, GR5 
-LP 		JNE		FIN
+LP 		JZE		FIN
 		LD 		GR3, GR5 
 		AND 	GR3, =#0001	;被乗数を1ビット左論理シフト
 		JZE 	NEXT
@@ -18,12 +18,3 @@ FIN 	RPOP
 		RET 
 CTBL	DS		3 			; GETWD用管理テーブル
 		END
-
-
-
-
-
-
-
-
-

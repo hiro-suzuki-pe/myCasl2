@@ -92,5 +92,7 @@ operand
          {  $$ = operand_create(-1, $3, address_create(ADDRESS, $1)); }
     | Gr ',' Literal
         {  $$ = operand_create($1, -1, address_create(LITERAL, $3)); }
+    | Gr ',' Label
+        {  $$ = operand_create($1, -1, address_create(LABEL, $3)); }
     | Label 
         {  $$ = operand_create(-1, -1, address_create(LABEL, $1)); }
