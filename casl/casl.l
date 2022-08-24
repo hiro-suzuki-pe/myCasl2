@@ -30,8 +30,10 @@ other       .
 {letter}{letter_or_digit}*   { return screen(); }
 
 {sign}?{digit}+     { yylval.y_adr = atoi(yytext);
-                return token(Address); }
-#{hdigit}+          { printf("Hex: %s\n", yytext); }
+                    return token(Address); }
+#{hdigit}+          { printf("Hex: %s\n", yytext); 
+                    yylval.y_adr = strtol(&yytext[1], NULL, 16);
+                    return token(Address); }
 ={sign}?{digit}+    { yylval.y_literal = DC_lookup(yytext); 
                         return Literal; }
 =#{hdigit}+         { yylval.y_literal = DC_lookup(yytext); 

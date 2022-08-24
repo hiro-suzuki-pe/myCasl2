@@ -93,5 +93,4 @@ operand
     | Gr ',' Literal
         {  $$ = operand_create($1, -1, address_create(LITERAL, $3)); }
     | Label 
-        {  $$ = operand_create(-1, -1, address_create(LABEL, $1));
-           printf("%s\n", g_label_table[$1].label); }
+        {  $$ = operand_create(-1, -1, address_create(LABEL, $1)); }
