@@ -6,9 +6,9 @@ GETWD	START
 		LAD		GR6,-1, GR6 
 LP		LAD 	GR6, 1, GR6 
 		LD		GR4, 0,GR6		; 1文字の取り出し
-		CPL 	GR4,=' .'
+		CPL 	GR4,='.'
 		JZE		FIN
-		CPL 	GR4,=''
+		CPL 	GR4,=' '
 		JNZ		NUM
 		CALL 	SETWD
 		JUMP 	LP

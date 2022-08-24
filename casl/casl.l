@@ -38,7 +38,7 @@ other       .
                         return Literal; }
 =#{hdigit}+         { yylval.y_literal = DC_lookup(yytext); 
                         return Literal; }
-=\'{digit}\'         { yylval.y_literal = DC_lookup(yytext); 
+=\'.\'         { yylval.y_literal = DC_lookup(yytext); 
                         return Literal; }
 {white_space}+      ;
 ;[^\n]*\n           { return token(NL);}
