@@ -8,6 +8,7 @@
 #include "casl.h"
 #include "casl.tab.h"
 
+struct LD_header g_LD_header;
 /* 
  *  main function
  */
@@ -34,10 +35,13 @@ int main(int argc, char **argv)
     yyparse();
     fclose(fp);
 
+    instruction_set_label_adr(BLOCK_SIZE);
+    DC_set_adr(g_LD_header.data_top);
+
     instruction_print();
     label_table_print();
     DC_table_print();
-
+    LD_header_print();
 
     exit(0);
 }
@@ -89,6 +93,20 @@ void DC_lookup(char *str)
     return;
 }
 
+void DC_set_adr(int data_top)
+{
+    if (g_DC_no == 0)
+        g_LD_header.bss_top = data_top;
+    else{
+        for (int i = 0; i < g_DC_no; i++)
+            g_DC_table[i].adr = data_top + i;    
+        g_LD_header.bss_top = ((data_top + g_DC_no -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+    }
+    g_LD_header.bss_size += g_DC_no;
+    
+    return;
+}
+
 void    instruction_print()
 {
     struct instruction inst;
@@ -124,6 +142,32 @@ void    instruction_print()
     }
 }
 
+void    instruction_set_label_adr(int pc)
+{
+    g_LD_header.text_top = pc;
+
+    for (int i = 0; i < g_instruction_no; i++){
+        struct instruction inst = g_instruction[i];
+
+        if (strcmp(inst.label, "") != 0){
+            int idx = label_lookup(inst.label);
+            g_label_table[idx].adr = pc;
+        } 
+        
+        if (inst.code >= 0 && inst.code <= 27){
+            if (inst.ope.adr.type == UNKNOWN)
+                pc += 1;    /* 1 word inst */
+            else        
+                pc += 2;    /* 2 word inst */                           
+        }
+    }
+    g_LD_header.text_size = pc - g_LD_header.text_top;
+
+    g_LD_header.data_top = g_LD_header.text_top;
+    for (int i = g_LD_header.text_size; i > 0; i -= BLOCK_SIZE)
+        g_LD_header.data_top += BLOCK_SIZE;
+}
+
 void    label_table_print()
 {
     struct label_table lbl;
@@ -131,7 +175,7 @@ void    label_table_print()
     printf("<<label table (%d entry)>>\n", g_label_no);
     for (int i = 0; i < g_label_no; i++){
         lbl = g_label_table[i];
-        printf("%-8s  %04X\n", lbl.label,lbl.adr);
+        printf("%-8s  %04X\n", lbl.label, lbl.adr);
     }
 }
 
@@ -193,4 +237,12 @@ struct address *address_create(enum adr_type type, int value)
     paddr->value = value;
 
     return paddr;
+}
+
+void    LD_header_print()
+{
+    printf("No of section: %d\n", g_LD_header.no_section);
+    printf("text: %04x, %4d\n", g_LD_header.text_top,  g_LD_header.text_size);
+    printf("data:  %04x, %4d\n", g_LD_header.data_top,  g_LD_header.data_size);
+    printf("bss :  %04x, %4d\n", g_LD_header.bss_top,  g_LD_header.bss_size);
 }

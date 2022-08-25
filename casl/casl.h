@@ -12,6 +12,8 @@
 #define MAX_LABEL   1024
 #define MAX_DC      1024
 
+#define BLOCK_SIZE  1024    /* block size of execution file */
+
 struct inst_table {
     char    name[MAX_LENGTH];   /* Instruction code */
     int  code;               /* machine instruction code */
@@ -41,7 +43,8 @@ struct instruction {
 extern int  g_instruction_no;
 extern struct instruction g_instruction [MAX_INSTRUCTION];
 struct instruction *instruction_create(int label_idx, int code, struct operand *ope);
-void    instruction_print();
+void    instruction_print(void);
+void    instruction_set_label_adr(int text_adr);
 
 struct  label_table {
     char    label[MAX_LENGTH];     /* label */
@@ -49,7 +52,7 @@ struct  label_table {
 };
 extern int  g_label_no;
 extern struct label_table  g_label_table[];
-void    label_table_print();
+void    label_table_print(void);
 
 struct  DC_table {
     char    label[MAX_LENGTH];
@@ -59,4 +62,19 @@ struct  DC_table {
 extern int  g_DC_no;
 extern struct  DC_table    g_DC_table[];
 void    DC_table_print();
+void    DC_set_adr(int data_adr);
 
+struct LD_header {
+    int no_section;
+    int ;            /* reserved word */
+    int text_top;
+    int text_size;
+    int data_top;
+    int data_size;
+    int bss_top;
+    int bss_size;
+    int stack_top;
+    int stack_size;
+};
+extern struct LD_header g_LD_header;
+void LD_header_print(void);
