@@ -54,6 +54,7 @@ void    label_table_print();
 struct  DC_table {
     char    label[MAX_LENGTH];
     int  val;
+    int  adr;        /* address */
 };
 extern int  g_DC_no;
 extern struct  DC_table    g_DC_table[];

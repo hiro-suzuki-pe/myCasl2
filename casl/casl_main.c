@@ -38,6 +38,8 @@ int main(int argc, char **argv)
     label_table_print();
     DC_table_print();
 
+
+    exit(0);
 }
 
 /*
@@ -81,6 +83,7 @@ void DC_lookup(char *str)
             g_DC_table[i].val = str[2];
         else
             g_DC_table[i].val = atoi(&str[1]);
+        g_DC_table[i].adr = 0;
         g_DC_no++;
     }
     return;
@@ -94,7 +97,7 @@ void    instruction_print()
 
     printf("\n<<instruction table (%d entry)>>\n", 
         g_instruction_no);
-    printf("%-8s %-8s %-2s %-2s %-2s %-2s %-sx\n",
+    printf("%-8s %-8s %-2s %-2s %-2s %-2s %-s\n",
         "label", "inst", "code", "r", "x", "type", "address");
     for (int i = 0; i < g_instruction_no; i++){
         inst = g_instruction[i];
@@ -112,11 +115,11 @@ void    instruction_print()
             printf("%2d ", ope.x); 
 
         if (adr.type == ADDRESS)
-            printf("A  %04x", adr.value&0x0ffff);
+            printf("A  %04X", adr.value&0x0ffff);
         else if (adr.type == LABEL)
-            printf("L  %04x", adr.value);
+            printf("L  %04X", adr.value);
         else if (adr.type == LITERAL)
-            printf("N  %04x", adr.value);
+            printf("N  %04X", adr.value);
         printf("\n");
     }
 }
@@ -128,7 +131,7 @@ void    label_table_print()
     printf("<<label table (%d entry)>>\n", g_label_no);
     for (int i = 0; i < g_label_no; i++){
         lbl = g_label_table[i];
-        printf("%-8s  %04x\n", lbl.label,lbl.adr);
+        printf("%-8s  %04X\n", lbl.label,lbl.adr);
     }
 }
 
@@ -139,7 +142,7 @@ void    DC_table_print()
     printf("<<DC table (%d entry)>>\n", g_DC_no);
     for (int i = 0; i < g_DC_no; i++){
         dc = g_DC_table[i];
-        printf("%-8s  %04x\n", dc.label, dc.val);
+        printf("%-8s  %04X %04X\n", dc.label, dc.val, dc.adr);
     }
 }
 
