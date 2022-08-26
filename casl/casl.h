@@ -13,7 +13,7 @@
 #define MAX_DC      1024
 
 #define BLOCK_SIZE  1024    /* block size of execution file */
-
+#define LONG_INSTRUCTION    0x0100  /* flag of machine word (set if 2 word inst) */
 struct inst_table {
     char    name[MAX_LENGTH];   /* Instruction code */
     int  code;               /* machine instruction code */
@@ -80,3 +80,17 @@ struct LD_header {
 };
 extern struct LD_header g_LD_header;
 void LD_header_print(void);
+
+/*
+union {
+    unsigned short WORD[2];
+    struct {
+        unsigned short inst:6;
+        unsigned short :1;
+        unsigned short flag:1;
+        unsigned short r1:4;
+        unsigned short r2:4;
+        unsigned short adr;
+    } BIT;
+}  machine_word;
+*/

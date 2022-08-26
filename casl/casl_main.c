@@ -1,6 +1,10 @@
 /*
  *  casl -- symbol table definition and manipulation
  */
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -46,6 +50,27 @@ int main(int argc, char **argv)
     instruction_resolve_address();
     instruction_print();
 
+    char csx_file[255];
+    int i;
+    if (argc == 2){
+        for (i = strlen(argv[1]); i > 0; i--){
+            if (argv[1][i-1] == '.') break;
+        }
+        if (i > 0)
+            strcpy(csx_file, argv[1]);
+            strcpy(&csx_file[i], "csx");
+    }
+    else
+        strcpy(csx_file, "temp.csx");
+
+    int nw = instruction_write_file(csx_file);
+    if (2 * nw != g_LD_header.text_size){
+        fprintf(stderr, "ERROR: casl wrote %d of %d words in %s\n", 
+            2 * nw, g_LD_header.text_size, csx_file);
+    }
+    else{
+        printf("casl wrote %d words in %s\n", nw, csx_file);
+    }
     exit(0);
 }
 
@@ -190,7 +215,39 @@ void    instruction_resolve_address(void)
     return;
 }
 
-void    label_table_print()
+int    instruction_write_file(char *csx_file)
+{
+    printf("instruction_write_file(%s)\n", csx_file);
+
+    unsigned short *mbuf = 
+        (unsigned short *)malloc(g_LD_header.text_size * 2);
+    int j = 0;
+    for (int i = 0; i < g_instruction_no; i++){
+        struct instruction inst = g_instruction[i];
+        int hw = ((0x003f & inst.code) << 10) |
+                 ((0x0f & inst.ope.r) << 4) | (0x0f & inst.ope.x);
+        if (inst.ope.adr.type == ADDRESS){
+            hw |= LONG_INSTRUCTION;
+            mbuf[j++] = hw;
+            mbuf[j++] = (unsigned short)(0x0ffff & inst.ope.adr.value);
+        }
+        else
+            mbuf[j++] = hw;
+    }
+
+    int fd = open(csx_file, O_WRONLY|O_CREAT, S_IRWXU|S_IRWXU|S_IRWXO);
+    int n = write(fd, mbuf, g_LD_header.text_size);
+
+    if (g_LD_header.text_size != n / 2){
+        fprintf(stderr, "Error: %d of %d words written in %s\n",
+            n / 2, g_LD_header.text_size, csx_file);
+        exit(2);
+    }
+    close(fd);
+    return j;
+}
+
+void    label_table_print(void)
 {
     struct label_table lbl;
 
