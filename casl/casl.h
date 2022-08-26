@@ -45,6 +45,8 @@ extern struct instruction g_instruction [MAX_INSTRUCTION];
 struct instruction *instruction_create(int label_idx, int code, struct operand *ope);
 void    instruction_print(void);
 void    instruction_set_label_adr(int text_adr);
+void    instruction_resolve_address(void);
+
 
 struct  label_table {
     char    label[MAX_LENGTH];     /* label */
@@ -56,8 +58,8 @@ void    label_table_print(void);
 
 struct  DC_table {
     char    label[MAX_LENGTH];
-    int  val;
-    int  adr;        /* address */
+    int  val;       /* constant value */
+    int  adr;       /* address */
 };
 extern int  g_DC_no;
 extern struct  DC_table    g_DC_table[];

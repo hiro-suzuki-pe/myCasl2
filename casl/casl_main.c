@@ -43,6 +43,9 @@ int main(int argc, char **argv)
     DC_table_print();
     LD_header_print();
 
+    instruction_resolve_address();
+    instruction_print();
+
     exit(0);
 }
 
@@ -71,9 +74,10 @@ int label_lookup(char *str)
     return i;
 }
 
-void DC_lookup(char *str)
+int DC_lookup(char *str)
 {
     int i;
+    int idx;
 
     for (i = 0; i < g_DC_no; i++){
         if (strcmp(str, g_DC_table[i].label) == 0)
@@ -90,7 +94,7 @@ void DC_lookup(char *str)
         g_DC_table[i].adr = 0;
         g_DC_no++;
     }
-    return;
+    return i;
 }
 
 void DC_set_adr(int data_top)
@@ -154,7 +158,7 @@ void    instruction_set_label_adr(int pc)
             g_label_table[idx].adr = pc;
         } 
         
-        if (inst.code >= 0 && inst.code <= 27){
+        if (inst.code >= 0 && inst.code <= 31){
             if (inst.ope.adr.type == UNKNOWN)
                 pc += 1;    /* 1 word inst */
             else        
@@ -166,6 +170,24 @@ void    instruction_set_label_adr(int pc)
     g_LD_header.data_top = g_LD_header.text_top;
     for (int i = g_LD_header.text_size; i > 0; i -= BLOCK_SIZE)
         g_LD_header.data_top += BLOCK_SIZE;
+
+    return;
+}
+
+void    instruction_resolve_address(void)
+{
+    for (int i = 0; i < g_instruction_no; i++){
+        struct instruction *inst = &g_instruction[i];
+
+        if (inst->ope.adr.type == LABEL){
+            inst->ope.adr.type = ADDRESS;
+            inst->ope.adr.value = g_label_table[inst->ope.adr.value].adr;
+        } else if (inst->ope.adr.type == LITERAL){
+            inst->ope.adr.type = ADDRESS;
+            inst->ope.adr.value = g_DC_table[inst->ope.adr.value].adr;
+        } 
+    }
+    return;
 }
 
 void    label_table_print()
@@ -229,12 +251,18 @@ struct operand *operand_create(int r, int x, struct address *adr)
     return pope;
 }
 
+/* address_create()
+ *  adr_type: 
+ *  value:  = address if adr_type = ADDRESS 
+ *          = label idx if adr_type = LABEL
+ *          = DC idx if adr_type = LITERAL
+ */
 struct address *address_create(enum adr_type type, int value)
 {
     struct address *paddr = (struct address *)malloc(sizeof (struct address));
 
     paddr->type = type;
-    paddr->value = value;
+    paddr->value = value;      
 
     return paddr;
 }
@@ -243,6 +271,6 @@ void    LD_header_print()
 {
     printf("No of section: %d\n", g_LD_header.no_section);
     printf("text: %04x, %4d\n", g_LD_header.text_top,  g_LD_header.text_size);
-    printf("data:  %04x, %4d\n", g_LD_header.data_top,  g_LD_header.data_size);
-    printf("bss :  %04x, %4d\n", g_LD_header.bss_top,  g_LD_header.bss_size);
+    printf("data: %04x, %4d\n", g_LD_header.data_top,  g_LD_header.data_size);
+    printf("bss : %04x, %4d\n", g_LD_header.bss_top,  g_LD_header.bss_size);
 }
