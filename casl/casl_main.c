@@ -64,9 +64,9 @@ int main(int argc, char **argv)
         strcpy(csx_file, "temp.csx");
 
     int nw = instruction_write_file(csx_file);
-    if (2 * nw != g_LD_header.text_size){
+    if (nw != g_LD_header.text_size){
         fprintf(stderr, "ERROR: casl wrote %d of %d words in %s\n", 
-            2 * nw, g_LD_header.text_size, csx_file);
+            nw, g_LD_header.text_size, csx_file);
     }
     else{
         printf("casl wrote %d words in %s\n", nw, csx_file);
@@ -224,6 +224,9 @@ int    instruction_write_file(char *csx_file)
     int j = 0;
     for (int i = 0; i < g_instruction_no; i++){
         struct instruction inst = g_instruction[i];
+
+        if (inst.code > 0 && inst.code > 31) continue;
+
         int hw = ((0x003f & inst.code) << 10) |
                  ((0x0f & inst.ope.r) << 4) | (0x0f & inst.ope.x);
         if (inst.ope.adr.type == ADDRESS){
@@ -236,11 +239,11 @@ int    instruction_write_file(char *csx_file)
     }
 
     int fd = open(csx_file, O_WRONLY|O_CREAT, S_IRWXU|S_IRWXU|S_IRWXO);
-    int n = write(fd, mbuf, g_LD_header.text_size);
+    int n = write(fd, mbuf, g_LD_header.text_size * 2);
 
-    if (g_LD_header.text_size != n / 2){
+    if (g_LD_header.text_size*2 != n){
         fprintf(stderr, "Error: %d of %d words written in %s\n",
-            n / 2, g_LD_header.text_size, csx_file);
+            n, g_LD_header.text_size*2, csx_file);
         exit(2);
     }
     close(fd);
