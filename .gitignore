@@ -6,3 +6,7 @@ casl/*.o
 .vscode/configurationCache.log
 .vscode/targets.log
 casl/casl.exe
+xcd/xcd.exe
+xcd/*.o
+*.cas
+*.csx
