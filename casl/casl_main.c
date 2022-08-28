@@ -63,14 +63,7 @@ int main(int argc, char **argv)
     else
         strcpy(csx_file, "temp.csx");
 
-    int nw = instruction_write_file(csx_file);
-    if (nw != g_LD_header.text_size){
-        fprintf(stderr, "ERROR: casl wrote %d of %d words in %s\n", 
-            nw, g_LD_header.text_size, csx_file);
-    }
-    else{
-        printf("casl wrote %d words in %s\n", nw, csx_file);
-    }
+    csx_write_file(csx_file);
     exit(0);
 }
 
@@ -215,12 +208,28 @@ void    instruction_resolve_address(void)
     return;
 }
 
-int    instruction_write_file(char *csx_file)
+void  csx_write_file(char *csx_file)
 {
-    printf("instruction_write_file(%s)\n", csx_file);
+    printf("csx_write_file(%s)\n", csx_file);
 
-    unsigned short *mbuf = 
-        (unsigned short *)malloc(g_LD_header.text_size * 2);
+    /* set header buffer */
+    int hsize = BLOCK_SIZE;
+    unsigned short *hbuf = (unsigned short *)malloc(hsize);
+    memset(hbuf, 0, hsize);
+    hbuf[0] = (unsigned short)g_LD_header.no_section;
+    hbuf[2] = (unsigned short)g_LD_header.text_top;
+    hbuf[3] = (unsigned short)g_LD_header.text_size;
+    hbuf[4] = (unsigned short)g_LD_header.data_top;
+    hbuf[5] = (unsigned short)g_LD_header.data_size;
+    hbuf[6] = (unsigned short)g_LD_header.bss_top;
+    hbuf[7] = (unsigned short)g_LD_header.bss_size;
+    hbuf[8] = (unsigned short)g_LD_header.stack_top;
+    hbuf[9] = (unsigned short)g_LD_header.stack_size;
+
+    /* set machine instruction buffer */
+    int msize = ((g_LD_header.text_size * 2 -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+    unsigned short *mbuf = (unsigned short *)malloc(msize);
+    memset(hbuf, 0, msize);
     int j = 0;
     for (int i = 0; i < g_instruction_no; i++){
         struct instruction inst = g_instruction[i];
@@ -238,12 +247,32 @@ int    instruction_write_file(char *csx_file)
             mbuf[j++] = hw;
     }
 
-    int fd = open(csx_file, O_WRONLY|O_CREAT, S_IRWXU|S_IRWXU|S_IRWXO);
-    int n = write(fd, mbuf, g_LD_header.text_size * 2);
+    /* set data buffer */
+    int dsize = ((2 * g_LD_header.data_size -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+    unsigned short *dbuf = (unsigned short *)malloc(dsize);
+    memset(dbuf, 0, dsize);
+    for (int i = 0; i < g_DC_no; i++)
+        hbuf[i] = (unsigned short)(0x0ffff & g_DC_table[i].val);
 
-    if (g_LD_header.text_size*2 != n){
-        fprintf(stderr, "Error: %d of %d words written in %s\n",
-            n, g_LD_header.text_size*2, csx_file);
+    int fd = open(csx_file, O_WRONLY|O_CREAT, S_IRWXU|S_IRWXU|S_IRWXO);
+
+    /* write buffer in csx file */
+    int n = write(fd, hbuf, hsize);
+    if (n != hsize){
+        fprintf(stderr, "Header write error:%d of %d words written in %s\n",
+            n, hsize, csx_file);
+        exit(2);
+    }
+    n = write(fd, mbuf, msize);
+    if (n != msize){
+        fprintf(stderr, "Machine instruction write error:%d of %d words written in %s\n",
+            n, msize, csx_file);
+        exit(2);
+    }
+    n = write(fd, dbuf, dsize);
+    if (n != dsize){
+        fprintf(stderr, "data write error:%d of %d words written in %s\n",
+            n, dsize, csx_file);
         exit(2);
     }
     close(fd);
