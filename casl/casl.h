@@ -70,7 +70,7 @@ struct LD_header {
     int no_section;
     int ;            /* reserved word */
     int text_top;
-    int text_size;
+    int text_size;   /* word count of text */
     int data_top;
     int data_size;
     int bss_top;
@@ -94,3 +94,5 @@ union {
     } BIT;
 }  machine_word;
 */
+
+void csx_write_file(char *csx_file);
