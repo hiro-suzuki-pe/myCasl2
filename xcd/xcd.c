@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -6,47 +7,46 @@
 #define BLOCK_SIZE      1024
 #define CHARS_IN_LINE   16
 #define top(x)      ((x/CHARS_IN_LINE) * CHARS_IN_LINE)
-void xcd(FILE *fp);
+
+void xcd_text(FILE *fp);    /* dump in hexa and char (text mode) */
+void xcd(int fd);           /* dump in hexa and char (binary mode) */
 
 int main(int argc, char **argv)
 {
     int i;
 
-    if (argc == 1) 
-        xcd(NULL);
-    else{
+    if (argc == 1)          /* in text mode */
+        xcd_text(NULL);
+    else{                   /* in binary mode */
         for (i = 1; i < argc; i++){
             printf("xcd(%s)\n", argv[i]);
 
-            FILE *fp = fopen(argv[i], "r");
-            if (fp == NULL){
+            int fd = open(argv[i], O_RDONLY);
+            if (fd == -1){
                 fprintf(stderr, "%s open error (errno=)\n", argv[i], errno);
                 exit(-1);
             }
-            xcd(fp);
-            fclose(fp);
+            xcd(fd);
+            close(fd);
         }
     }
     return 0;
 
 err:if (argc == 1)
-        fprintf(stderr, "xcd(%s) error\n", "");
+        fprintf(stderr, "xcd(%s) error (text mode)\n", "");
     else
-        fprintf(stderr, "xcd(%s) error\n", argv[i]);
+        fprintf(stderr, "xcd(%s) error (binary mode)\n", argv[i]);
     return -1;
 }
 
 /* 
- * xcd --- hexa + char dump
- *      01234567890123456789012345678901234567890123456789012345678901234567890123456789
- *      xxxx  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F    abcdefghijklmnop
+ * xcd_text --- hexa + char dump
  */
-void xcd(FILE *fp)
+void xcd_text(FILE *fp)
 {
     int pos = 0;
     int n = 0;
     char c;
-    char abf[8];    
     char xbf[3*CHARS_IN_LINE+1];
     char cbf[CHARS_IN_LINE+1];
 
@@ -55,18 +55,59 @@ void xcd(FILE *fp)
             memset(xbf, 0x20, sizeof(xbf));     /* バッファをスペースで初期化 */
             memset(cbf, 0x20, sizeof(cbf));
         }
-        sprintf(&xbf[3*n+1], "%02x ", c);
+        sprintf(&xbf[3*n+1], "%02X ", c);
         sprintf(&cbf[n], "%c", isprint(c)? c: '.');
 
         n++;
         if (n >= CHARS_IN_LINE){
-            printf("%04X  %-48s    %-16s\n", top(pos), xbf, cbf);
+//            printf("%04X  %-48s    %-16s\n", top(pos), xbf, cbf);
+            printf("%04X[%2d]  %-48s    %-16s\n", top(pos), n, xbf, cbf);
             n = 0;
         }
         pos++;
     }
     if (n != 0)
-        printf("%04X  %-48s    %-16s\n", top(pos), xbf, cbf);
+//        printf("%04X  %-48s    %-16s\n", top(pos), xbf, cbf);
+        printf("%04X[%2d]  %-48s    %-16s\n", top(pos), n, xbf, cbf);
     return;
 }
 
+
+/* 
+ * xcd --- hexa + char dump (file descriptor version/binary mode)
+ */
+void xcd(int fd)
+{
+    int pos = 0;
+    int i;
+    int n;
+    char rbf[CHARS_IN_LINE];
+    char xbf[3*CHARS_IN_LINE+1];
+    char cbf[CHARS_IN_LINE+1];
+
+    n = read(fd, rbf, CHARS_IN_LINE);
+    while(n == CHARS_IN_LINE){
+        for (i = 0; i < CHARS_IN_LINE; i++){
+            sprintf(&xbf[3*i+1], "%02X", rbf[i]);
+            sprintf(&cbf[i], "%c", isprint(rbf[i])? rbf[i]: '.');
+        }
+        printf("%04X[%2d]  %-48s    %-16s\n", top(pos), n, xbf, cbf);
+
+        pos += CHARS_IN_LINE;
+
+        n = read(fd, rbf, CHARS_IN_LINE);
+    }
+
+    if (n > 0)
+        for (i = 0; i < n; i++){
+            sprintf(&xbf[3*i+1], "%02X ", rbf[i]);
+            sprintf(&cbf[i], "%c", isprint(rbf[i])? rbf[i]: '.');
+        }
+        for (; i < CHARS_IN_LINE; i++){
+            sprintf(&xbf[3*i+1], "   ");
+            sprintf(&cbf[i], " ");
+        }
+
+        printf("%04X[%2d]  %-48s    %-16s\n", top(pos), n, xbf, cbf);
+    return;
+}
