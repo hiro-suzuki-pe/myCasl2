@@ -40,6 +40,7 @@ int main(int argc, char **argv)
     fclose(fp);
 
     instruction_set_label_adr(BLOCK_SIZE);
+    LD_header_create();
     DC_set_adr(g_LD_header.data_top);
 
     instruction_print();
@@ -118,13 +119,13 @@ int DC_lookup(char *str)
 void DC_set_adr(int data_top)
 {
     if (g_DC_no == 0)
-        g_LD_header.bss_top = data_top;
+        g_LD_header.data_top = data_top;
     else{
         for (int i = 0; i < g_DC_no; i++)
             g_DC_table[i].adr = data_top + i;    
-        g_LD_header.bss_top = ((data_top + g_DC_no -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+        g_LD_header.data_top = ((data_top + g_DC_no -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
     }
-    g_LD_header.bss_size += g_DC_no;
+    g_LD_header.data_size += g_DC_no;
     
     return;
 }
@@ -211,25 +212,27 @@ void    instruction_resolve_address(void)
 void  csx_write_file(char *csx_file)
 {
     printf("csx_write_file(%s)\n", csx_file);
-
+    g_LD_header.no_section = 4;     /* text, data, bss and stack */
     /* set header buffer */
     int hsize = BLOCK_SIZE;
     unsigned short *hbuf = (unsigned short *)malloc(hsize);
     memset(hbuf, 0, hsize);
-    hbuf[0] = (unsigned short)g_LD_header.no_section;
-    hbuf[2] = (unsigned short)g_LD_header.text_top;
-    hbuf[3] = (unsigned short)g_LD_header.text_size;
-    hbuf[4] = (unsigned short)g_LD_header.data_top;
-    hbuf[5] = (unsigned short)g_LD_header.data_size;
-    hbuf[6] = (unsigned short)g_LD_header.bss_top;
-    hbuf[7] = (unsigned short)g_LD_header.bss_size;
-    hbuf[8] = (unsigned short)g_LD_header.stack_top;
-    hbuf[9] = (unsigned short)g_LD_header.stack_size;
+    hbuf[0] = (unsigned short)(0x0ffff & g_LD_header.no_section);
+    hbuf[2] = (unsigned short)(0x0ffff & g_LD_header.text_top);
+    hbuf[3] = (unsigned short)(0x0ffff & g_LD_header.text_size);
+    hbuf[4] = (unsigned short)(0x0ffff & g_LD_header.data_top);
+    hbuf[5] = (unsigned short)(0x0ffff & g_LD_header.data_size);
+    hbuf[6] = (unsigned short)(0x0ffff & g_LD_header.bss_top);
+    hbuf[7] = (unsigned short)(0x0ffff & g_LD_header.bss_size);
+    hbuf[8] = (unsigned short)(0x0ffff & g_LD_header.stack_top);
+    hbuf[9] = (unsigned short)(0x0ffff & g_LD_header.stack_size);
 
     /* set machine instruction buffer */
-    int msize = ((g_LD_header.text_size * 2 -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+    int msize = (2 * g_LD_header.text_size)/BLOCK_SIZE * BLOCK_SIZE;
+    if (((2* g_LD_header.text_size) % BLOCK_SIZE) > 0) msize += BLOCK_SIZE;
+
     unsigned short *mbuf = (unsigned short *)malloc(msize);
-    memset(hbuf, 0, msize);
+    memset(mbuf, 0, msize);
     int j = 0;
     for (int i = 0; i < g_instruction_no; i++){
         struct instruction inst = g_instruction[i];
@@ -248,7 +251,9 @@ void  csx_write_file(char *csx_file)
     }
 
     /* set data buffer */
-    int dsize = ((2 * g_LD_header.data_size -1)/BLOCK_SIZE + 1) * BLOCK_SIZE;
+    int dsize = (2 * g_LD_header.data_size)/BLOCK_SIZE * BLOCK_SIZE;
+    if (((2* g_LD_header.data_size) % BLOCK_SIZE) > 0) dsize += BLOCK_SIZE;
+  
     unsigned short *dbuf = (unsigned short *)malloc(dsize);
     memset(dbuf, 0, dsize);
     for (int i = 0; i < g_DC_no; i++)
@@ -356,10 +361,45 @@ struct address *address_create(enum adr_type type, int value)
     return paddr;
 }
 
-void    LD_header_print()
+struct LD_header g_LD_header;
+
+void    LD_header_print(void)
 {
     printf("No of section: %d\n", g_LD_header.no_section);
     printf("text: %04x, %4d\n", g_LD_header.text_top,  g_LD_header.text_size);
     printf("data: %04x, %4d\n", g_LD_header.data_top,  g_LD_header.data_size);
     printf("bss : %04x, %4d\n", g_LD_header.bss_top,  g_LD_header.bss_size);
+}
+
+void    LD_header_create(void)
+{
+    g_LD_header.no_section = 0; 
+
+    g_LD_header.text_top = BLOCK_SIZE;
+    g_LD_header.text_size = instruction_word_count();   /* word count of text */
+
+    g_LD_header.data_top = g_LD_header.text_top + (g_LD_header.text_size/BLOCK_HALF)*BLOCK_HALF;
+    if ((g_LD_header.text_size % BLOCK_HALF) !=0)
+        g_LD_header.data_top += BLOCK_HALF;
+    g_LD_header.data_size g_DC_no;
+
+    g_LD_header.bss_top = g_LD_header.data_top + (g_LD_header.data_size/BLOCK_HALF)*BLOCK_HALF;
+    if ((g_LD_header.bss_top % BLOCK_HALF) != 0)
+        g_LD_header.bss_top += BLOCK_HALF;
+
+    g_LD_header.bss_size = 0;       /* =0（当面ゼロ固定）最終的にはラベルを生成してアドレスとサイズを管理する */
+
+    g_LD_header.stack_top = g_LD_header.bss_top + (g_LD_header.bss_size/BLOCK_HALF)*BLOCK_HALF;
+    if ((g_LD_header.stack_top % BLOCK_HALF) != 0)
+        g_LD_header.stack_top += BLOCK_HALF;
+    g_LD_header.stack_size = 0x010000 - g_LD_header.stack_top;
+
+    return;
+}
+
+
+
+    g_LD_header.bss_top;
+    g_LD_header.stack_top;
+};
 }
