@@ -209,6 +209,18 @@ void    instruction_resolve_address(void)
     return;
 }
 
+int instruction_word_count(void)
+{
+    int len = 0;
+
+    for (int i = 0; i < g_instruction_no; i++){
+        struct instruction *x = &g_instruction[i];
+        if (x->code >= 0) len++;
+        if (x->code >= 0 && x->ope.adr.type == ADDRESS) len++; 
+    }
+    return len;
+}
+
 void  csx_write_file(char *csx_file)
 {
     printf("csx_write_file(%s)\n", csx_file);
@@ -381,7 +393,7 @@ void    LD_header_create(void)
     g_LD_header.data_top = g_LD_header.text_top + (g_LD_header.text_size/BLOCK_HALF)*BLOCK_HALF;
     if ((g_LD_header.text_size % BLOCK_HALF) !=0)
         g_LD_header.data_top += BLOCK_HALF;
-    g_LD_header.data_size g_DC_no;
+    g_LD_header.data_size = g_DC_no;
 
     g_LD_header.bss_top = g_LD_header.data_top + (g_LD_header.data_size/BLOCK_HALF)*BLOCK_HALF;
     if ((g_LD_header.bss_top % BLOCK_HALF) != 0)
@@ -395,11 +407,4 @@ void    LD_header_create(void)
     g_LD_header.stack_size = 0x010000 - g_LD_header.stack_top;
 
     return;
-}
-
-
-
-    g_LD_header.bss_top;
-    g_LD_header.stack_top;
-};
 }
