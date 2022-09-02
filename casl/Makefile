@@ -7,7 +7,7 @@ LEX		= flex
 CFLAGS    = -w -g #  -Wall
 
 # (3)実行ファイル名
-TARGET  = casl
+TARGET  = casl.exe
 
 # (4)コンパイル対象のソースコード
 SRCS    = casl.tab.c lex.yy.c casl_main.c message.c 
