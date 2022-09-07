@@ -1,5 +1,5 @@
-casl/casl.tab.c
-casl/casl.tab.h
+casl/caslY.tab.c
+casl/caslY.tab.h
 casl/lex.yy.c
 casl/*.o
 .vscode/dryrun.log

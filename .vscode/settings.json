@@ -3,7 +3,7 @@
     "search.useIgnoreFiles": false,
     "files.associations": {
         "casl.h": "c",
-        "casl.tab.h": "c",
+        "caslY.tab.h": "c",
         "fcntl.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
