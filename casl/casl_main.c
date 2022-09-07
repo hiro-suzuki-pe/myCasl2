@@ -10,7 +10,7 @@
 #include <string.h>
 #include <assert.h>
 #include "casl.h"
-#include "casl.tab.h"
+#include "caslY.tab.h"
 
 struct LD_header g_LD_header;
 /* 

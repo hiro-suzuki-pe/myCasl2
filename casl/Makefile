@@ -4,13 +4,13 @@ YACC	= bison -d
 LEX		= flex
 
 # (2)コンパイルオプション
-CFLAGS    = -w -g #  -Wall
+CFLAGS    = -w -g -DYY_SKIP_YYWRAP #  -Wall
 
 # (3)実行ファイル名
 TARGET  = casl.exe
 
 # (4)コンパイル対象のソースコード
-SRCS    = casl.tab.c lex.yy.c casl_main.c message.c 
+SRCS    = caslY.tab.c lex.yy.c casl_main.c message.c 
 
 # (5)オブジェクトファイル名
 OBJS    = $(SRCS:.c=.o)
@@ -27,13 +27,13 @@ LIBS    = 	 # -lfl  # 	-ll
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
 	$(CC) -o $@ -g $^ $(LIBDIR) $(LIBS)
-	$(TARGET) ..\\test.cas
+	$(TARGET) ../test.cas
 # (10)オブジェクトファイル生成
 .c.o:	
 	$(CC) $(CFLAGS) $(INCDIR)	-c $<
-casl.tab.c:	casl.y
+caslY.tab.c:	caslY.y
 	$(YACC) $?
-lex.yy.c: casl.l casl.tab.h
+lex.yy.c: casl.l caslY.tab.h
 	$(LEX) $?
 
 # (11)"make all"で make cleanとmakeを同時に実施。
@@ -41,4 +41,4 @@ all: clean $(OBJS) $(TARGET)
 
 # (12).oファイル、実行ファイル、.dファイルを削除
 clean:
-	del $(OBJS) $(TARGET) casl.tab.c casl.tab.h lex.yy.c
+	rm -f $(OBJS) $(TARGET) caslY.tab.c caslY.tab.h lex.yy.c

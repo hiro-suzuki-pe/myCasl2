@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <string.h>
 #include "casl.h"
-#include "casl.tab.h"
+#include "caslY.tab.h"
 #define token(x)    x
 #define yywrap()    1
 
