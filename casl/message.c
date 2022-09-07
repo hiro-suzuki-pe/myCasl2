@@ -10,7 +10,6 @@
 /* 
  *  global variables for parsing
  */
- FILE *yyerfp;    /* error stream */
  char yytext[];   /* current token */
  int yyleng;      /* and its length */
  int yylineno;    /* current input line num */

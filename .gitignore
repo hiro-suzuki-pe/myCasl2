@@ -10,3 +10,4 @@ xcd/xcd.exe
 xcd/*.o
 *.cas
 *.csx
+casl/casl

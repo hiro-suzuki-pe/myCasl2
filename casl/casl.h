@@ -3,6 +3,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define MAX_LENGTH  8       /* max length of strings */
 #define cfree(x)    free(x)
@@ -15,6 +16,9 @@
 #define BLOCK_SIZE  1024    /* block size of execution file */
 #define BLOCK_HALF  512     /* block size in word (2 bytes) */
 #define LONG_INSTRUCTION    0x0100  /* flag of machine word (set if 2 word inst) */
+
+FILE *yyerfp;
+
 struct inst_table {
     char    name[MAX_LENGTH];   /* Instruction code */
     int  code;               /* machine instruction code */
@@ -83,6 +87,5 @@ extern struct LD_header g_LD_header;
 void LD_header_print(void);
 
 void csx_write_file(char *csx_file);
-
 
 int instruction_word_count(void);

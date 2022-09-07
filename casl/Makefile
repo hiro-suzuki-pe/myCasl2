@@ -4,10 +4,10 @@ YACC	= bison -d
 LEX		= flex
 
 # (2)コンパイルオプション
-CFLAGS    = -w -g -DYY_SKIP_YYWRAP #  -Wall
+CFLAGS    = -w -g -DYY_SKIP_YYWRAP -DYYERROR_VERBOSE #  -Wall
 
 # (3)実行ファイル名
-TARGET  = casl.exe
+TARGET  = casl
 
 # (4)コンパイル対象のソースコード
 SRCS    = caslY.tab.c lex.yy.c casl_main.c message.c 
@@ -27,7 +27,7 @@ LIBS    = 	 # -lfl  # 	-ll
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
 	$(CC) -o $@ -g $^ $(LIBDIR) $(LIBS)
-	$(TARGET) ../test.cas
+#	$(TARGET) ../test.cas
 # (10)オブジェクトファイル生成
 .c.o:	
 	$(CC) $(CFLAGS) $(INCDIR)	-c $<

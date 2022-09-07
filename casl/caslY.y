@@ -56,7 +56,7 @@ struct  DC_table    g_DC_table[MAX_DC];
  %%
 
  program
-    : {/* init(); */}
+    : { init(); }
         instructions END_OF_FILE {/* end_program(); */}
 
 instructions

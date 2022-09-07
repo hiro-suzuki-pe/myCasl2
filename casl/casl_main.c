@@ -13,6 +13,8 @@
 #include "caslY.tab.h"
 
 struct LD_header g_LD_header;
+FILE *yyerfp;           
+
 /* 
  *  main function
  */
@@ -75,6 +77,7 @@ init()
 {
     g_label_no = 0;
     g_DC_no = 0;
+    yyerfp = stderr;
 }
 
 int label_lookup(char *str)
