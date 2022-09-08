@@ -271,7 +271,7 @@ void  csx_write_file(char *csx_file)
     for (int i = 0; i < g_DC_no; i++)
         hbuf[i] = (unsigned short)(0x0ffff & g_DC_table[i].val);
 
-    int fd = open(csx_file, O_WRONLY|O_CREAT, S_IRWXU|S_IRWXU|S_IRWXO);
+    int fd = open(csx_file, O_WRONLY|O_CREAT|O_BINARY, S_IRWXU|S_IRWXU|S_IRWXO);
 
     /* write buffer in csx file */
     int n = write(fd, hbuf, hsize);
