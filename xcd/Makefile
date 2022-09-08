@@ -7,7 +7,7 @@ LEX		= flex
 CFLAGS    = -w -g #  -Wall
 
 # (3)実行ファイル名
-TARGET  = xcd.exe
+TARGET  = xcd
 
 # (4)コンパイル対象のソースコード
 SRCS    = xcd.c 
