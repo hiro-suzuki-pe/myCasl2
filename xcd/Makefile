@@ -27,7 +27,7 @@ LIBS    =
 # (9)ターゲットファイル生成
 $(TARGET): $(OBJS)
 	$(CC) -o $@ -g $^ $(LIBDIR) $(LIBS)
-	$(TARGET)	..\test.csx
+	$(TARGET)	../test.csx
 
 # (10)オブジェクトファイル生成
 .c.o:	
@@ -39,4 +39,4 @@ all: clean $(OBJS) $(TARGET)
 
 # (12).oファイル、実行ファイル、.dファイルを削除
 clean:
-	del /q $(OBJS) $(TARGET) 
+	rm -f $(OBJS) $(TARGET) 
