@@ -10,7 +10,10 @@ xcd/*.exe
 xcd/*.o
 *.cas
 *.csx
-UnitTest/Makefile
+UnitTest/*.o
+UnitTest/*.exe
+UnitTest/*.dat
 UnitTest/UnityHarness/*.o
+UnitTest/UnityHarness/*.a
 UnitTest/UnityHarness/src/*.o
 UnitTest/UnityHarness/examples/example_2/*.exe
