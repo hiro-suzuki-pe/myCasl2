@@ -5,8 +5,12 @@ casl/*.o
 .vscode/dryrun.log
 .vscode/configurationCache.log
 .vscode/targets.log
-casl/casl.exe
-xcd/xcd.exe
+casl/*.exe
+xcd/*.exe
 xcd/*.o
 *.cas
 *.csx
+UnitTest/Makefile
+UnitTest/UnityHarness/*.o
+UnitTest/UnityHarness/src/*.o
+UnitTest/UnityHarness/examples/example_2/*.exe
